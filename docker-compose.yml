@@ -1,0 +1,58 @@
+services:
+
+  api:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/api/Dockerfile
+      target: builder
+    container_name: api
+    environment:
+      MONGODB_URI: mongodb://admin:admin@mongodb:27017
+      MONGODB_DATABASE_NAME: geolocation
+      PATH_PREFIX: /api/geolocation-service
+    command:
+      - "/bin/sh"
+      - "-c"
+      - "make api && /app/api"
+    ports:
+      - "8001:8001"
+    depends_on:
+      - mongodb
+
+  importer:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/importer/Dockerfile
+      target: builder
+    container_name: importer
+    environment:
+      MONGODB_URI: mongodb://admin:admin@mongodb:27017
+      MONGODB_DATABASE_NAME: geolocation
+      DATA_CHECKPOINT_LOCATION: data_dump.csv
+    command:
+      - "/bin/sh"
+      - "-c"
+      - "make importer && /app/importer"
+    ports:
+      - "8002:8002"
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    restart: always
+
+volumes:
+  mongodb-data:
+
+networks:
+  default:
+

@@ -1,0 +1,136 @@
+definitions:
+  model.Exception:
+    properties:
+      _id:
+        type: string
+      checks:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      code:
+        type: string
+      httpCode:
+        type: integer
+      message:
+        type: string
+    type: object
+  model.Geolocation:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      countryCode:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      ipAddress:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      mysteryValue:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.PageResponse:
+    properties:
+      hasNextPage:
+        type: boolean
+      items: {}
+      totalPageCount:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /api/geolocation-service/geolocations:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint for getting pageable geolocations data
+      parameters:
+      - description: Page number (offset)
+        in: query
+        name: offset
+        required: true
+        type: integer
+      - description: Number of items per page (limit)
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Exception'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Exception'
+      summary: Endpoint for getting geolocations
+      tags:
+      - geolocation-handler
+  /api/geolocation-service/geolocations/{ipAddress}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint for getting geolocation  by given ip address
+      parameters:
+      - description: ip address
+        in: path
+        name: ipAddress
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Geolocation'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Exception'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Exception'
+      summary: Endpoint for getting geolocation
+      tags:
+      - geolocation-handler
+  /health:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Health endpoint for kubernetes health check
+      tags:
+      - health-handler
+  /readiness:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Readiness endpoint for kubernetes readiness check
+      tags:
+      - health-handler
+swagger: "2.0"
